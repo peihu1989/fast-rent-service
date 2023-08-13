@@ -37,13 +37,13 @@ class InsuranceControllerTest extends FastRentServiceApplicationTests {
         // when & then
         final MvcResult mvcResult = mockMvc.perform(
                         MockMvcRequestBuilders
-                                .post("/insurance-contracts/INSURANCE-0001/accident")
+                                .post("/insurance-contracts/IN-0001/accident")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .characterEncoding("UTF-8")
                                 .content(objectMapper.writeValueAsString(insuranceApply)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code",is("SENDING")))
-                .andExpect(jsonPath("$.message",is("正在通知保险公司,请稍后查询出现状态")))
+                .andExpect(jsonPath("$.message",is("正在通知保险公司,请稍后查询出险状态")))
                 .andReturn();
     }
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum InsuranceApplyStatus {
-    SENDING("正在通知保险公司,请稍后查询出现状态"),
+    SENDING("正在通知保险公司,请稍后查询出险状态"),
     SEND("已发送出现请求至保险公司,待保险公司确认"),
     CONFIRMED("保险公司已确认,正在出险中");
 

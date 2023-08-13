@@ -1,5 +1,6 @@
 package com.thoughtworks.fast.rent;
 
+import com.thoughtworks.fast.rent.service.InsuranceService;
 import com.thoughtworks.fast.rent.service.PaymentService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,5 +19,8 @@ public class FastRentServiceApplicationTests {
 
     @MockBean
     protected PaymentService paymentService;
+
+    @MockBean
+    protected InsuranceService insuranceService;
 
 }

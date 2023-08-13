@@ -1,7 +1,7 @@
 package com.thoughtworks.fast.rent.mapper;
 
 import com.thoughtworks.fast.rent.enums.PaymentStatus;
-import com.thoughtworks.fast.rent.model.dto.PaymentInfo;
+import com.thoughtworks.fast.rent.model.dto.payment.PaymentInfo;
 import com.thoughtworks.fast.rent.model.entity.PaymentEntity;
 import com.thoughtworks.fast.rent.model.thirdparty.request.PaymentRequest;
 import org.mapstruct.Mapper;

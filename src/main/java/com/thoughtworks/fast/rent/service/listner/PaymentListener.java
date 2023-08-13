@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import static com.thoughtworks.fast.rent.enums.Constant.PENDING_PAYMENT;
+import static com.thoughtworks.fast.rent.enums.Constant.PENDING_PAYMENT_TOPIC_NAME;
 
 @Slf4j
 @Service
@@ -15,11 +15,11 @@ public class PaymentListener {
 
     private final PaymentService paymentService;
 
-    @KafkaListener(topics = PENDING_PAYMENT,
+    @KafkaListener(topics = PENDING_PAYMENT_TOPIC_NAME,
             id = "fast-rent-service.payment-status-query.listener",
             properties = {
                     "spring.json.use.type.headers=false",
-                    "spring.json.value.default.type=com.thoughtworks.fast.rent.model.message.PaymentMessage"
+                    "spring.json.value.default.type=java.lang.String"
             })
     public void listenToGetPaymentStatus(String message) {
         log.info("PaymentService.listenToGetPaymentStatus is {}", message);

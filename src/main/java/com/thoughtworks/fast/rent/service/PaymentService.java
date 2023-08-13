@@ -4,7 +4,7 @@ package com.thoughtworks.fast.rent.service;
 import com.thoughtworks.fast.rent.infrastructure.client.PaymentClient;
 import com.thoughtworks.fast.rent.infrastructure.repository.PaymentRepository;
 import com.thoughtworks.fast.rent.mapper.PaymentMapper;
-import com.thoughtworks.fast.rent.model.dto.PaymentResult;
+import com.thoughtworks.fast.rent.model.dto.CommonResult;
 import com.thoughtworks.fast.rent.model.entity.PaymentEntity;
 import com.thoughtworks.fast.rent.model.thirdparty.request.PaymentRequest;
 import feign.FeignException;
@@ -14,11 +14,11 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import static com.thoughtworks.fast.rent.enums.Constant.PENDING_PAYMENT;
+import static com.thoughtworks.fast.rent.enums.Constant.PENDING_PAYMENT_TOPIC_NAME;
 import static com.thoughtworks.fast.rent.enums.PaymentStatus.FAILED;
 import static com.thoughtworks.fast.rent.enums.PaymentStatus.PENDING;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.REQUEST_TIMEOUT;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 
 @Slf4j
 @Service
@@ -30,7 +30,7 @@ public class PaymentService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final PaymentMapper paymentMapper = Mappers.getMapper(PaymentMapper.class);
 
-    public PaymentResult pay(PaymentRequest paymentRequest) {
+    public CommonResult pay(PaymentRequest paymentRequest) {
 
         var paymentEntity = paymentMapper.toEntity(paymentRequest);
         try {
@@ -38,16 +38,18 @@ public class PaymentService {
             paymentEntity.setStatus(payResult.getPaymentStatus())
                     .setMessage(payResult.getMessage());
         } catch (FeignException exception) {
-            if (exception.status() == REQUEST_TIMEOUT.value() || exception.status() == INTERNAL_SERVER_ERROR.value()) {
+            if ( isClientError(exception.status())) {
+                paymentEntity.setStatus(FAILED).setMessage("支付失败,请重新支付");
+            } else if(serverUnavailable(exception.status())){
                 paymentEntity.setStatus(FAILED).setMessage("支付服务异常,请重新支付");
-            } else {
+            } else{
                 paymentEntity.setStatus(PENDING).setMessage("支付中,请稍后查询支付状态");
-                kafkaTemplate.send(PENDING_PAYMENT, paymentRequest.getContractId(), paymentRequest.getContractId());
+                kafkaTemplate.send(PENDING_PAYMENT_TOPIC_NAME, paymentRequest.getContractId(), paymentRequest.getContractId());
             }
         }
         paymentRepository.save(paymentEntity);
-        return PaymentResult.builder()
-                .paymentStatus(paymentEntity.getStatus())
+        return CommonResult.builder()
+                .code(paymentEntity.getStatus().name())
                 .message(paymentEntity.getMessage())
                 .build();
     }
@@ -61,8 +63,15 @@ public class PaymentService {
             paymentRepository.save(paymentEntity);
         } catch (FeignException exception) {
             log.warn(" call feign to get payment result failed", exception);
-            kafkaTemplate.send(PENDING_PAYMENT, contractId, contractId);
+            kafkaTemplate.send(PENDING_PAYMENT_TOPIC_NAME, contractId, contractId);
         }
     }
 
+    private static boolean isClientError(int status) {
+        return status >= 400 && status < 500;
+    }
+
+    private static boolean serverUnavailable(int status) {
+        return status == BAD_GATEWAY.value() || status == SERVICE_UNAVAILABLE.value();
+    }
 }

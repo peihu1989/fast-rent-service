@@ -3,6 +3,7 @@ package com.thoughtworks.fast.rent.infrastructure.repository;
 import com.thoughtworks.fast.rent.enums.PaymentStatus;
 import com.thoughtworks.fast.rent.model.entity.PaymentEntity;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -24,6 +25,7 @@ class PaymentRepositoryTest {
     }
 
     @Test
+    @DisplayName("当调用paymentRepository保存一条数据,查询出来的结果除了自增ID以外其他的字段应该与保存的数据一致")
     void should_get_correct_payment_entity_data_when_retrieve_from_database() {
         //given
         PaymentEntity original = PaymentEntity.builder()

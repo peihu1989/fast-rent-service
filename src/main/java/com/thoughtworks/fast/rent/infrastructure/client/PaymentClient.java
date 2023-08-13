@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@FeignClient(name = "paymentClient", url = "https://payment.com/payment",configuration = PaymentClientConfiguration.class)
+@FeignClient(name = "paymentClient", url = "https://payment.com/payment")
 public interface PaymentClient {
 
     @PostMapping("/payment")

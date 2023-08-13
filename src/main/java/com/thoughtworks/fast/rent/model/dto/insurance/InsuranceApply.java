@@ -1,4 +1,4 @@
-package com.thoughtworks.fast.rent.model.dto;
+package com.thoughtworks.fast.rent.model.dto.insurance;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,11 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaymentInfo {
+public class InsuranceApply {
 
-    private BigDecimal amount;
+    private String vehicleId;
+
+    private String address;
+
 
 }
